@@ -72,8 +72,6 @@ class _HomeScreenState extends State<HomeScreen> {
             // Índice 2 porque 'Personajes' está en la tercera posición (empezando desde 0)
             Navigator.pushNamed(context, "/peliculas");
           }
-          // También puedes manejar otras pestañas aquí, si lo deseas
-          // else if (index == 0) { ... } para el Home, etc.
         },
       ),
       floatingActionButtonLocation: ExpandableFab.location,

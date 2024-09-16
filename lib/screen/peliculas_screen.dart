@@ -3,34 +3,38 @@ import 'package:pmsn2024/screen/PeliculaCard.dart';
 import 'package:pmsn2024/screen/pelicula.dart';
 import 'package:pmsn2024/settings/colors_settings.dart';
 
-
+// Define una clase para la pantalla de películas que tiene estado
 class PeliculasScreen extends StatefulWidget {
   @override
   _PeliculasScreenState createState() => _PeliculasScreenState();
 }
 
+// Define el estado para la pantalla de películas
 class _PeliculasScreenState extends State<PeliculasScreen> with SingleTickerProviderStateMixin {
-  late PageController pageController;
-  double pageOffset = 0;
-  late AnimationController controller;
-  late Animation animation; 
+  late PageController pageController;  // Controlador para el PageView
+  double pageOffset = 0;  // Desplazamiento de la página actual
+  late AnimationController controller;  // Controlador para las animaciones
+  late Animation animation;  // Animación para efectos visuales
 
   @override
   void initState() {
-    controller =
-        AnimationController(vsync: this, duration: Duration(milliseconds: 800));
+    super.initState();
+    // Inicializa el controlador de animación con una duración de 800 ms
+    controller = AnimationController(vsync: this, duration: Duration(milliseconds: 800));
     animation = CurvedAnimation(parent: controller, curve: Curves.easeOutBack);
+    // Inicializa el controlador de páginas con un factor de vista del 80%
     pageController = PageController(viewportFraction: .8);
     pageController.addListener(() {
       setState(() {
+        // Actualiza el desplazamiento de la página cuando se desplaza
         pageOffset = pageController.page!;
       });
     });
-    super.initState();
   }
 
   @override
   void dispose() {
+    // Limpia los controladores cuando el estado se elimina
     controller.dispose();
     pageController.dispose();
     super.dispose();
@@ -38,36 +42,35 @@ class _PeliculasScreenState extends State<PeliculasScreen> with SingleTickerProv
 
   @override
   Widget build(BuildContext context) {
-    Size size = MediaQuery.of(context).size;
+    Size size = MediaQuery.of(context).size;  // Obtiene el tamaño de la pantalla
     return Scaffold(
       body: SafeArea(
         child: Stack(
           children: <Widget>[
-            buildToolbar(),
-            buildLogo(size),
-            buildPager(size),
-            buildPageIndecator()
+            buildToolbar(),  // Construye la barra de herramientas
+            buildLogo(size),  // Construye el logo con animación
+            buildPager(size),  // Construye el PageView con películas
+            buildPageIndecator()  // Construye el indicador de página
           ],
         ),
       ),
     );
   }
 
+  // Construye la barra de herramientas con iconos animados
   Widget buildToolbar() {
     return Padding(
       padding: const EdgeInsets.only(top: 20.0),
       child: Row(
         children: <Widget>[
-          SizedBox(
-            width: 20,
-          ),
+          SizedBox(width: 20),
           AnimatedBuilder(
               animation: animation,
               builder: (context, snapshot) {
                 return Transform.translate(
                   offset: Offset(-200 * (1.0 - animation.value), 0),
                   child: Image.asset(
-                    'assets/location.png',
+                    'assets/ubicacion.png',
                     width: 30,
                     height: 30,
                   ),
@@ -80,20 +83,19 @@ class _PeliculasScreenState extends State<PeliculasScreen> with SingleTickerProv
                 return Transform.translate(
                   offset: Offset(200 * (1.0 - animation.value), 0),
                   child: Image.asset(
-                    'assets/drawer.png',
+                    'assets/casa.png',
                     width: 30,
                     height: 30,
                   ),
                 );
               }),
-          SizedBox(
-            width: 20,
-          ),
+          SizedBox(width: 20),
         ],
       ),
     );
   }
 
+  // Construye el logo con animación
   Widget buildLogo(Size size) {
     return Positioned(
       top: 10,
@@ -121,6 +123,7 @@ class _PeliculasScreenState extends State<PeliculasScreen> with SingleTickerProv
     );
   }
 
+  // Construye el PageView con las tarjetas de películas(los cuadros)
   Widget buildPager(Size size) {
     return Container(
       margin: EdgeInsets.only(top: 70),
@@ -140,21 +143,22 @@ class _PeliculasScreenState extends State<PeliculasScreen> with SingleTickerProv
     );
   }
 
+  // Obtiene una lista de películas
   List<Pelicula> getDrinks() {
     List<Pelicula> list = [];
-    list.add(Pelicula( //pelicula 1
-        'Pon',
+    list.add(Pelicula(
+        'Pon',//titulo 
         'Yo',
-        'assets/uno.jpg', //fondo de cada apartado 
+        'assets/uno.jpg', //fondo 
+        'assets/agua.png', //animacion
         'assets/agua.png',
         'assets/agua.png',
-        'assets/agua.png',
-        'assets/ponyo.png', 
+        'assets/ponyo.png',  //png grande 
         '"Ponyo" trata sobre una pececita mágica que desea ser humana y equilibrar los mundos marino y terrestre. \n¡Animate a verla!',
-        ColorsSettings.lowRedColor, //color_setting 
+        ColorsSettings.lowRedColor, //lo toma de color_setting ya que en esa parte lo especificammos
         ColorsSettings.lowBlueColor,
         'Animadas'));
-    list.add(Pelicula(//pelicula 2
+    list.add(Pelicula(
         'Ki', 
         'ki',
         'assets/dos.jpg',
@@ -166,21 +170,22 @@ class _PeliculasScreenState extends State<PeliculasScreen> with SingleTickerProv
         ColorsSettings.lowBlodColor,
         ColorsSettings.lowBlue2Color,
         'Ficcion'));
-    list.add(Pelicula(//pelicula 3
+    list.add(Pelicula(
         'Castillo\n',
         'magico',
         'assets/tres.jpg',
         'assets/espantapajaros.png',
         'assets/espantapajaros.png',
         'assets/espantapajaros.png',
-        'assets/castillo.png', //personaje png
-        'Una sombrerera, convertida en anciana por una bruja, busca refugio en la casa de un mago. \n.¡Embárcate en el encanto!',
-       ColorsSettings.lowBYellowColor,
+        'assets/castillo.png',
+        'Una sombrerera, convertida en anciana por una bruja, busca refugio en la casa de un mago. \n¡Embárcate en el encanto!',
+        ColorsSettings.lowBYellowColor,
         ColorsSettings.lowBPinkColor,
         'Amor')); 
     return list;
   }
 
+  // Construye el indicador de página con animación
   Widget buildPageIndecator() {
     return AnimatedBuilder(
       animation:controller,
@@ -200,11 +205,12 @@ class _PeliculasScreenState extends State<PeliculasScreen> with SingleTickerProv
     );
   }
 
+  // Construye un contenedor para el indicador de página
   Widget buildContainer(int index) {
     double animate =pageOffset-index;
     double size =10;
     Color? color =const Color.fromARGB(255, 79, 117, 241);
-    Color? colorEnd =const Color.fromARGB(255, 245, 69, 69); //por la version del video se coloca 
+    Color? colorEnd =const Color.fromARGB(255, 245, 69, 69); 
     animate=animate.abs();
     if(animate<=1 && animate>=0){
       size=10+10*(1-animate);
@@ -220,3 +226,4 @@ class _PeliculasScreenState extends State<PeliculasScreen> with SingleTickerProv
     );
   }
 }
+
