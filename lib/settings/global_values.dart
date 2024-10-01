@@ -3,6 +3,5 @@ import 'package:flutter/material.dart';
 class GlobalValues {
 
   static ValueNotifier banThemeDark = ValueNotifier(false); //definimos la variable 
-
-
+  static ValueNotifier banUpdListMovies = ValueNotifier(false);
 }

@@ -4,6 +4,7 @@
 import 'package:flutter/material.dart';
 import 'package:pmsn2024/screen/home_screen.dart';
 import 'package:pmsn2024/screen/login_screen.dart';
+import 'package:pmsn2024/screen/movies_screen.dart';
 import 'package:pmsn2024/screen/peliculas_screen.dart';
 import 'package:pmsn2024/settings/global_values.dart';
 import 'package:pmsn2024/settings/theme_settings.dart';
@@ -17,7 +18,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return ValueListenableBuilder(
       valueListenable: GlobalValues.banThemeDark,
-      builder: (context,_,value) { //se recupera true o false de la variable 
+      builder: (context,_,value) { //se recupera true o false de la variabl
         return MaterialApp(
           title: 'Material App',
           debugShowCheckedModeBanner: false,
@@ -26,6 +27,7 @@ class MyApp extends StatelessWidget {
           routes: {
             "/home":(context) => HomeScreen(),
             "/peliculas": (context) => PeliculasScreen(),
+            "/db":(context) => MoviesScreen() //agregamos la ruta 
           },
         );
       }

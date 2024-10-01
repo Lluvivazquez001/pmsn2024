@@ -1,7 +1,6 @@
 // ignore_for_file: non_constant_identifier_names
 
 import 'dart:io';
-
 import 'package:path_provider/path_provider.dart';
 import 'package:pmsn2024/models/moviesdao.dart';
 import 'package:sqflite/sqflite.dart';
@@ -34,11 +33,16 @@ class MoviesDatabase {
           VERSIONDB, //se llama en la que se estaba definiendo en donde se va a poner la primer version
       onCreate: (db, version) {
         //al ser la primera vez que se ejecuta se llaman a estos, se crean todos los querys
-        String query = '''
+        String query1 = '''
         CREATE TABLE tblgenre(
            idGenre char(1) PPRIMARY KEY,
            dscgenre VARCHAR(50)
-        );
+        )
+        ''';
+
+        db.execute(query1);
+
+        String query2='''
         CREATE TABLE tblmovies(
           idMovie INTEGER PRIMARY KEY,
           nameMovie VARCHAR(100),
@@ -47,8 +51,8 @@ class MoviesDatabase {
           imgMovie VARCHAR(150),
           releaseDate CHAR(10),
           CONSTRAINT fk_gen FOREIGN KEY(idGenre) REFERENCES tblgenre(idGenre)
-        )''';
-        db.execute(query);
+        );''';
+        db.execute(query2);
       },
     );
   }//initdatabase 
@@ -76,3 +80,6 @@ class MoviesDatabase {
   }
 }
 //metodo iterable, se va moviendo sobre los elementos de la lista
+
+
+
