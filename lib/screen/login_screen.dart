@@ -8,98 +8,140 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  // Controladores para los campos de texto de usuario y contraseña
   final conUser = TextEditingController();
   final conPwd = TextEditingController();
+  
+  // Variable para manejar el estado de carga
   bool isLoading = false;
 
   @override
   Widget build(BuildContext context) {
-    //definimos las variables
-    TextFormField txtUser = TextFormField(
-      keyboardType: TextInputType.emailAddress,
-      controller: conUser,
-      decoration: const InputDecoration(prefixIcon: Icon(Icons.person)),
-    );
-    final txtPwd = TextFormField(
-      keyboardType: TextInputType.text,
-      obscureText: true, //para los elementos ocultos
-      controller: conPwd,
-      decoration: const InputDecoration(
-          prefixIcon: Icon(Icons
-              .password)), //se asocian los controles a las cajas de texto ,
-    );
-
-    final ctnCredentials = Positioned(
-      bottom: 320,
-      child: Container(
-        width: MediaQuery.of(context).size.width * .9,
-        // margin: EdgeInsets.symmetric(horizontal: 10),
-        decoration: BoxDecoration(
-            color: Colors.white, borderRadius: BorderRadius.circular(20)),
-        child: ListView(
-          shrinkWrap: true,
-          children: [txtUser, txtPwd],
-        ),
-      ),
-    );
-
-//colocamor el boton:
-    final btnLogin = Positioned(
-      width: MediaQuery.of(context).size.width * .9,
-      bottom:
-          220, //para ver que tan separado queremos que este de las cajas de texto
-      child: ElevatedButton(
-          style: ElevatedButton.styleFrom(
-              //estilo al boton
-              backgroundColor: const Color.fromARGB(255, 24, 27, 61)),//color del boton
-          onPressed: () {
-            isLoading =
-                true; //cuando se presione dira que esta cargando entonces, se hace la tarea en 2do plano
-            setState(() {});
-            Future.delayed(const Duration(milliseconds: 4000)).then((value) => {
-                  isLoading = false,
-                  setState(() {}),
-                  Navigator.pushNamed(context, "/home")
-                });
-          },
-          child: const Text(
-            'Validar usuario',
-            style: TextStyle(
-              color: Color.fromARGB(255, 217, 225, 224), // color de la letra
-              fontWeight: FontWeight.bold, // peso de la letra (opcional)
-            ),
-          )),
-    );
-
-    final gifLoading = Positioned(
-      top: 130,
-      child: Image.asset('assets/loading.gif'),
-    );
-
     return Scaffold(
-      body: Container(
-        height: MediaQuery.of(context).size.height,
-        width: MediaQuery.of(context).size.width,
-        decoration: const BoxDecoration(
-            image: DecorationImage(
-                fit: BoxFit.cover, image: AssetImage('assets/fondo.jpg'))),
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            Positioned(
-                top: 5,
-                child: Image.asset(
-                  'assets/imagen2.png',
-                  width: 300,
-                )),
-            ctnCredentials,
-            btnLogin, //BOTON LOGIN
-            isLoading
-                ? gifLoading
-                : Container() //? es un operador terneario, por ende dice: si isLoading es true entonces muestrame el gif si no muestrame un container
-          ],
-        ),
+      body: LayoutBuilder( //para hacer responsivo 
+        builder: (context, constraints) {
+          // Variables para obtener la altura y el ancho de la pantalla
+          double screenHeight = constraints.maxHeight;
+          double screenWidth = constraints.maxWidth;
+
+          return Container(
+            height: screenHeight,
+            width: screenWidth,
+            // imagen de fondo y la decoracion que va a tener 
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                fit: BoxFit.cover,
+                image: AssetImage('assets/fondo.jpg'),
+              ),
+            ),
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                // Logo ubicado en la parte superior de la pantalla
+                Positioned(
+                  top: screenHeight * 0.05, // Posicionamiento responsivo
+                  child: Image.asset(
+                    'assets/imagen2.png',
+                    width: screenWidth * 0.6, // Ancho responsivo
+                  ),
+                ),
+                // Contenedor para los campos de credenciales
+                Positioned(
+                  bottom: screenHeight * 0.4, // Posicionamiento responsivo
+                  child: Container(
+                    width: screenWidth * 0.9, // Ancho responsivo
+                    padding: EdgeInsets.all(screenWidth * 0.04), // Padding responsivo
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20), // Bordes redondeados
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Campo de texto para el usuario
+                        TextFormField(
+                          keyboardType: TextInputType.emailAddress, // Teclado optimizado para email
+                          controller: conUser, // Controlador del campo
+                          decoration: const InputDecoration(
+                            prefixIcon: Icon(Icons.person), // Icono al inicio del campo
+                            hintText: 'Usuario', // Texto de ayuda
+                          ),
+                        ),
+                        SizedBox(height: screenHeight * 0.02), // Espaciado responsivo
+                        // Campo de texto para la contraseña
+                        TextFormField(
+                          keyboardType: TextInputType.text,
+                          obscureText: true, // Oculta el texto ingresado
+                          controller: conPwd, // Controlador del campo
+                          decoration: const InputDecoration(
+                            prefixIcon: Icon(Icons.lock), // Icono al inicio del campo
+                            hintText: 'Contraseña', // Texto de ayuda
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                // Botón de inicio de sesión
+                Positioned(
+                  bottom: screenHeight * 0.25, // Posicionamiento responsivo
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color.fromARGB(255, 24, 27, 61), // Color de fondo del botón
+                      padding: EdgeInsets.symmetric(
+                        vertical: screenHeight * 0.02, // Padding vertical responsivo
+                        horizontal: screenWidth * 0.3, // Padding horizontal responsivo
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30), // Bordes redondeados del botón
+                      ),
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        isLoading = true; // Activa el indicador de carga
+                      });
+                      // Simula una tarea en segundo plano (por ejemplo, autenticación)
+                      Future.delayed(const Duration(milliseconds: 4000)).then(
+                        (value) {
+                          setState(() {
+                            isLoading = false; // Desactiva el indicador de carga
+                          });
+                          // Navega a la pantalla de onboarding reemplazando la actual
+                          Navigator.pushReplacementNamed(context, "/onboarding");
+                        },
+                      );
+                    },
+                    child: const Text(
+                      'Validar usuario',
+                      style: TextStyle(
+                        color: Color.fromARGB(255, 217, 225, 224), // Color del texto
+                        fontWeight: FontWeight.bold, // Peso de la fuente
+                      ),
+                    ),
+                  ),
+                ),
+                // Indicador de carga (GIF) que se muestra mientras isLoading es true
+                if (isLoading)
+                  Positioned(
+                    top: screenHeight * 0.3, // Posicionamiento responsivo
+                    child: Image.asset(
+                      'assets/loading.gif',
+                      width: screenWidth * 0.6, // Tamaño responsivo del GIF
+                    ),
+                  ),
+              ],
+            ),
+          );
+        },
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    // Libera los controladores cuando el widget se elimina del árbol
+    conUser.dispose();
+    conPwd.dispose();
+    super.dispose();
   }
 }

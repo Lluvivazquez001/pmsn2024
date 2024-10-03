@@ -29,7 +29,7 @@ class _HomeScreenState extends State<HomeScreen> {
               onTap: () {},
               child: MouseRegion(
                   cursor: SystemMouseCursors.click,
-                  child: Image.asset('assets/raton.png')))
+                  child: Image.asset( 'assets/casa.png')))
         ],
       ),
       //devolver un widget = body
@@ -47,13 +47,13 @@ class _HomeScreenState extends State<HomeScreen> {
         items: const [
           TabItem(icon: Icons.home, title: 'Home'),
           TabItem(icon: Icons.person, title: 'Profile'),
-          TabItem(
+         /* TabItem(
             icon: Icons.woo_commerce_sharp,
             title: 'Personajes',
-          ),
+          ),*/
           TabItem(icon: Icons.exit_to_app, title: 'Exit'),
         ],
-        initialActiveIndex:
+       /* initialActiveIndex:
             0, // El índice del primer ítem que estará activo al cargar la pantalla
         onTap: (int index) {
           // Verificar si el índice corresponde a "Personajes"
@@ -61,7 +61,7 @@ class _HomeScreenState extends State<HomeScreen> {
             // Índice 2 porque 'Personajes' está en la tercera posición (empezando desde 0)
             Navigator.pushNamed(context, "/peliculas");
           }
-        },
+        },*/
       ),
       floatingActionButtonLocation: ExpandableFab.location,
       floatingActionButton: ExpandableFab(
@@ -109,6 +109,18 @@ class _HomeScreenState extends State<HomeScreen> {
             title: Text('Movies List'),
             subtitle: Text('Database of movies'),
             leading: Icon(Icons.movie),
+            trailing: Icon(Icons.chevron_right),
+          ),
+          ListTile(
+            onTap: () => Navigator.pushNamed(context, '/peliculas'),
+            title: Text('Peliculas'),
+            leading: Icon(Icons.movie),
+            trailing: Icon(Icons.chevron_right),
+          ),
+          ListTile(
+            onTap: () => Navigator.pushReplacementNamed(context, '/login'),
+            title: Text('Cerrar Sesion'),
+            leading: Icon(Icons.close),
             trailing: Icon(Icons.chevron_right),
           )
         ],

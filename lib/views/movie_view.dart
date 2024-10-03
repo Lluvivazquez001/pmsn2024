@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:pmsn2024/database/movies_database.dart';
@@ -8,9 +7,9 @@ import 'package:quickalert/models/quickalert_type.dart';
 import 'package:quickalert/widgets/quickalert_dialog.dart';
 
 class MovieView extends StatefulWidget {
-   MovieView({super.key, this.moviesDAO});
+  MovieView({super.key, this.moviesDAO});
 
-   MoviesDAO? moviesDAO;
+  MoviesDAO? moviesDAO;
 
   @override
   State<MovieView> createState() => _MovieViewState();
@@ -30,9 +29,9 @@ class _MovieViewState extends State<MovieView> {
   void initState() {
     super.initState(); //para saber si existe una conexion de la bd
     moviesDatabase = MoviesDatabase();
-    if(widget.moviesDAO != null){
+    if (widget.moviesDAO != null) {
       conName.text = widget.moviesDAO!.nameMovie!;
-      conOverview.text =widget.moviesDAO!.overview!;
+      conOverview.text = widget.moviesDAO!.overview!;
       conImgMovie.text = widget.moviesDAO!.imgMovie!;
       conRelease.text = widget.moviesDAO!.releaseDate!;
     }
@@ -78,34 +77,66 @@ class _MovieViewState extends State<MovieView> {
 
     final btnSave = ElevatedButton(
       onPressed: () {
-        //mandamos llamar la accion de moviesDataBase para insertar
-        moviesDatabase!.INSERT('tblmovies', {
-          //hacemos referencia a los atributos de la tabla
-          "nameMovie": conName.text,
-          "overview": conOverview.text,
-          "idGenre": 1,
-          "imgMovie": conImgMovie.text,
-          "releaseDate": conRelease.text
-        }).then((value) { //que me esta regresando de la tarea asincrona 
-          if (value > 0) {
-            GlobalValues.banUpdListMovies.value= !GlobalValues.banUpdListMovies.value;
+        if (widget.moviesDAO == null) {
+          //mandamos llamar la accion de moviesDataBase para insertar
+          moviesDatabase!.INSERT('tblmovies', {
+            //hacemos referencia a los atributos de la tabla
+            "nameMovie": conName.text,
+            "overview": conOverview.text,
+            "idGenre": 1,
+            "imgMovie": conImgMovie.text,
+            "releaseDate": conRelease.text
+          }).then((value) {
+            //que me esta regresando de la tarea asincrona
+            if (value > 0) {
+              GlobalValues.banUpdListMovies.value =
+                  !GlobalValues.banUpdListMovies.value;
+              return QuickAlert.show(
+                context: context,
+                type: QuickAlertType.success,
+                text: 'Transaction Completed Successfully!',
+                autoCloseDuration: const Duration(seconds: 2),
+                showConfirmBtn: false,
+              );
+            } else {
+              return QuickAlert.show(
+                context: context,
+                type: QuickAlertType.success,
+                text: 'Something was wrong!',
+                autoCloseDuration: const Duration(seconds: 2),
+                showConfirmBtn: false,
+              );
+            }
+          });
+        } else {
+           moviesDatabase!.UPDATE('tblmovies', {
+            //hacemos referencia a los atributos de la tabla
+            "idMovie": widget.moviesDAO!.idMovie,
+            "nameMovie": conName.text,
+            "overview": conOverview.text,
+            "idGenre": 1,
+            "imgMovie": conImgMovie.text,
+            "releaseDate": conRelease.text
+          }).then((value){
+            final msj;
+            QuickAlertType type = QuickAlertType.success;
+            if(value > 0){
+              GlobalValues.banUpdListMovies.value = !GlobalValues.banUpdListMovies.value;
+              type = QuickAlertType.success;
+              msj = "Transaction Completed Successfully!";
+            }else{
+              type = QuickAlertType.error;
+              msj="Somethins was wrong! :()";
+            }
             return QuickAlert.show(
-              context: context,
-              type: QuickAlertType.success,
-              text: 'Transaction Completed Successfully!',
-              autoCloseDuration: const Duration(seconds: 2),
-              showConfirmBtn: false,
-            );
-          }else{
-             return QuickAlert.show(
-              context: context,
-              type: QuickAlertType.success,
-              text: 'Something was wrong!',
-              autoCloseDuration: const Duration(seconds: 2),
-              showConfirmBtn: false,
-            );
-          }
-        });
+                context: context,
+                type: type,
+                text: msj,
+                autoCloseDuration: const Duration(seconds: 2),
+                showConfirmBtn: false,
+              );
+          });
+        }
       },
       style: ElevatedButton.styleFrom(backgroundColor: Colors.blue[200]),
       child: const Text('Guardar'),

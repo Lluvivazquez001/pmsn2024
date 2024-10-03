@@ -1,10 +1,8 @@
-//importaciones que se requieren
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
-
-
+import 'package:shared_preferences/shared_preferences.dart'; // Asegúrate de tener el paquete para SharedPreferences
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({Key? key}) : super(key: key);
@@ -14,19 +12,42 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  final ImagePicker _picker = ImagePicker(); //crea una instancia del selector de imagenes 
+  final ImagePicker _picker = ImagePicker();
   XFile? _imageFile;
-  //controlador 
+
+  // Controladores
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _githubController = TextEditingController();
   final TextEditingController _taskController = TextEditingController();
 
-  String _selectedStatus = 'Disponible'; // Estado por defecto
+  String _selectedStatus = 'Disponible';
   final List<String> _statusOptions = ['Disponible', 'Ocupado', 'No Molestar', 'Ausente'];
 
   final List<String> _tasks = [];
+  String selectedFont = 'Roboto'; // Fuente seleccionada por defecto
+  int themeIndex = 0; // Índice del tema por defecto
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPreferences();
+  }
+
+  Future<void> _loadPreferences() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      themeIndex = prefs.getInt('themeIndex') ?? 0; // Cargar el índice del tema
+      selectedFont = prefs.getString('selectedFont') ?? 'Roboto'; // Cargar la fuente
+    });
+  }
+
+  Future<void> _savePreferences() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('themeIndex', themeIndex);
+    await prefs.setString('selectedFont', selectedFont);
+  }
 
   Future<void> _pickImage(ImageSource source) async {
     final pickedFile = await _picker.pickImage(source: source);
@@ -83,6 +104,84 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
+//metodo para el tema y letra
+  void _showThemeAndFontDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Configuración"),
+          content: SingleChildScrollView(
+            child: Column(
+              children: [
+                Text("Selecciona el tema:"),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    FloatingActionButton(
+                      onPressed: () {
+                        setState(() {
+                          themeIndex = 0;
+                          _savePreferences(); // Guardar preferencia
+                        });
+                      },
+                      backgroundColor: Colors.blue,
+                      child: const Icon(Icons.light_mode, color: Colors.white),
+                    ),
+                    FloatingActionButton(
+                      onPressed: () {
+                        setState(() {
+                          themeIndex = 1;
+                          _savePreferences(); // Guardar preferencia
+                        });
+                      },
+                      backgroundColor: Colors.black87,
+                      child: const Icon(Icons.dark_mode, color: Colors.white),
+                    ),
+                    FloatingActionButton(
+                      onPressed: () {
+                        setState(() {
+                          themeIndex = 2;
+                          _savePreferences(); // Guardar preferencia
+                        });
+                      },
+                      backgroundColor: Colors.orange,
+                      child: const Icon(Icons.local_fire_department, color: Colors.white),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 20),
+                Text("Selecciona la fuente:"),
+                DropdownButton<String>(
+                  value: selectedFont,
+                  icon: const Icon(Icons.arrow_downward),
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      selectedFont = newValue!;
+                      _savePreferences(); // Guardar preferencia
+                    });
+                  },
+                  items: ['Roboto', 'Lato', 'Montserrat', 'Pacifico'].map<DropdownMenuItem<String>>((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text("Cerrar"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -134,6 +233,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
             _buildUserStatusField(),
             const SizedBox(height: 20),
             _buildTaskSection(),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () => _showThemeAndFontDialog(context), // Abre el modal
+              child: Text("Configuración de Tema y Fuente"),
+            ),
           ],
         ),
       ),
@@ -194,7 +298,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
             IconButton(
-              icon: Icon(Icons.open_in_new, color: Colors.deepPurple),
+              icon: Icon(Icons.arrow_forward),
               onPressed: onIconPressed,
             ),
           ],
@@ -211,24 +315,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
         padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 20.0),
         child: Row(
           children: [
-            const Icon(Icons.circle, color: Colors.deepPurple),
-            const SizedBox(width: 10),
-            const Text("Estado"),
+            const Icon(Icons.stairs, color: Colors.deepPurple),
             const SizedBox(width: 10),
             Expanded(
               child: DropdownButton<String>(
                 value: _selectedStatus,
-                items: _statusOptions.map((String status) {
-                  return DropdownMenuItem<String>(
-                    value: status,
-                    child: Text(status),
-                  );
-                }).toList(),
-                onChanged: (String? newStatus) {
+                onChanged: (String? newValue) {
                   setState(() {
-                    _selectedStatus = newStatus!;
+                    _selectedStatus = newValue!;
                   });
                 },
+                items: _statusOptions
+                    .map<DropdownMenuItem<String>>((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
               ),
             ),
           ],
@@ -239,85 +342,68 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget _buildTaskSection() {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          "Tareas/Recordatorios",
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 10),
-        ReorderableListView(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          onReorder: _onReorder,
-          children: _tasks.map((task) {
-            return ListTile(
-              key: ValueKey(task),
-              title: Text(task),
-              leading: Icon(Icons.drag_handle, color: Colors.deepPurple),
-              tileColor: Colors.deepPurple.shade50,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16.0),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8.0),
-              ),
-            );
-          }).toList(),
-        ),
-        const SizedBox(height: 10),
-        Row(
-          children: [
-            Expanded(
-              child: TextField(
-                controller: _taskController,
-                decoration: InputDecoration(
-                  labelText: "Agregar nueva tarea",
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
-                ),
-              ),
-            ),
-            IconButton(
-              icon: const Icon(Icons.add, color: Colors.deepPurple),
+        TextField(
+          controller: _taskController,
+          decoration: InputDecoration(
+            labelText: "Agregar tarea",
+            suffixIcon: IconButton(
+              icon: const Icon(Icons.add),
               onPressed: _addTask,
             ),
-          ],
+          ),
+        ),
+        const SizedBox(height: 10),
+        ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: _tasks.length,
+          itemBuilder: (context, index) {
+            return ListTile(
+              title: Text(_tasks[index]),
+              trailing: IconButton(
+                icon: const Icon(Icons.delete),
+                onPressed: () {
+                  setState(() {
+                    _tasks.removeAt(index);
+                  });
+                },
+              ),
+            );
+          },
         ),
       ],
     );
   }
 
-  void _onReorder(int oldIndex, int newIndex) {
-    setState(() {
-      if (newIndex > oldIndex) {
-        newIndex -= 1;
-      }
-      final task = _tasks.removeAt(oldIndex);
-      _tasks.insert(newIndex, task);
-    });
-  }
-
   void _showImageSourceActionSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
-      builder: (context) {
-        return SafeArea(
-          child: Wrap(
-            children: <Widget>[
+      builder: (BuildContext context) {
+        return Container(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                "Selecciona una fuente de imagen",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 20),
               ListTile(
-                leading: const Icon(Icons.photo_library),
-                title: const Text('Galería'),
+                leading: const Icon(Icons.camera),
+                title: const Text("Cámara"),
                 onTap: () {
-                  _pickImage(ImageSource.gallery);
-                  Navigator.of(context).pop();
+                  _pickImage(ImageSource.camera);
+                  Navigator.pop(context);
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.photo_camera),
-                title: const Text('Cámara'),
+                leading: const Icon(Icons.photo),
+                title: const Text("Galería"),
                 onTap: () {
-                  _pickImage(ImageSource.camera);
-                  Navigator.of(context).pop();
+                  _pickImage(ImageSource.gallery);
+                  Navigator.pop(context);
                 },
               ),
             ],
