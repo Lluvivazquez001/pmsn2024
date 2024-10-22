@@ -1,13 +1,25 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart'; // Librería para usar fuentes de Google Fonts
+import 'package:pmsn2024/firebase_options.dart';
+import 'package:pmsn2024/provider/test_provider.dart';
+import 'package:pmsn2024/screen/detail_popular_screen.dart';
 import 'package:pmsn2024/screen/home_screen.dart'; // Importa la pantalla del Home_Screen
 import 'package:pmsn2024/screen/login_screen.dart'; // Importa la pantalla de login
+import 'package:pmsn2024/screen/movies_screen.dart';
 import 'package:pmsn2024/screen/onboarding_screen.dart'; // Importa el onboarding
+import 'package:pmsn2024/screen/peliculas_screen.dart';
+import 'package:pmsn2024/screen/popular_screen.dart';
 import 'package:pmsn2024/screen/profile_screen.dart'; // Importa la pantalla de profile
+import 'package:pmsn2024/screen/registro_screen.dart';
 import 'package:pmsn2024/settings/preferences_services.dart'; // Importa el servicio de preferencias para guardar configuraciones
-import 'package:pmsn2024/settings/theme_settings.dart'; // Importa la configuración de temas
+import 'package:pmsn2024/settings/theme_settings.dart';
+import 'package:provider/provider.dart'; // Importa la configuración de temas
 
-void main() {
+void main()  async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);//para inicialiar firebase y la linea 19
+
   runApp(const MyApp()); // Llama a la aplicación principal
 }
 
@@ -58,17 +70,26 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Material App', // Título de la aplicación
-      debugShowCheckedModeBanner: false, // Oculta la marca de debug en la esquina
-      theme: _getThemeData(), // Aplica el tema basado en el índice seleccionado
-      home: LoginScreen(), // Pantalla inicial (se puede cambiar según el flujo)
-      routes: {
-        "/home": (context) => HomeScreen(), // Ruta para la pantalla principal
-        "/onboarding": (context) => OnboardingScreen(changeTheme: _changeTheme, changeFont: _changeFont), // Ruta para la pantalla de Onboarding
-        "/profile": (context) => ProfileScreen(), // Ruta para la pantalla de perfil
-        "/login": (context) => LoginScreen() // Ruta para la pantalla de inicio de sesión
-      },
+    return ChangeNotifierProvider(//envolvemos el materialApp en un ChangeNotifierProvider
+    create: (context)=>TestProvider(),
+      child: MaterialApp(
+        title: 'Material App', // Título de la aplicación
+        debugShowCheckedModeBanner: false, // Oculta la marca de debug en la esquina
+        theme: _getThemeData(), // Aplica el tema basado en el índice seleccionado
+        home: LoginScreen(), // Pantalla inicial (se puede cambiar según el flujo)
+        routes: {
+          "/home": (context) => HomeScreen(), // Ruta para la pantalla principal
+          "/onboarding": (context) => OnboardingScreen(changeTheme: _changeTheme, changeFont: _changeFont), // Ruta para la pantalla de Onboarding
+          "/profile": (context) => ProfileScreen(), // Ruta para la pantalla de perfil
+          "/login": (context) => LoginScreen(),
+          "/popularMovie": (context) => PopularScreen(), // Ruta para la pantalla de inicio de sesión
+          "/peliculas": (context) => PeliculasScreen(),
+          "/db": (context) => MoviesScreen(),
+          "/details": (context) => DetailPopularScreen(), //mandamos llamar la pantalla de detail
+          "/registro": (context) => RegistroScreen(), 
+
+        },
+      ),
     );
   }
 

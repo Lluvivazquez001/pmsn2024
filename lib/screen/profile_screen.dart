@@ -26,6 +26,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final List<String> _statusOptions = ['Disponible', 'Ocupado', 'No Molestar', 'Ausente'];
 
   final List<String> _tasks = [];
+  // Lista de opciones de fuentes disponibles
+  List<String> fonts = ['Roboto', 'Lato', 'Montserrat', 'Pacifico'];
   String selectedFont = 'Roboto'; // Fuente seleccionada por defecto
   int themeIndex = 0; // Índice del tema por defecto
 

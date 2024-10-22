@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:pmsn2024/firebase/email_auth.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+class RegistroScreen extends StatefulWidget {
+  const RegistroScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<RegistroScreen> createState() => _RegistroScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _RegistroScreenState extends State<RegistroScreen> {
   // Controladores para los campos de texto de usuario y contraseña
   final conUser = TextEditingController();
   final conPwd = TextEditingController();
+  final conEmail = TextEditingController();
+  EmailAuth auth = EmailAuth(); //objeto que apunta a los metodos 
   
   // Variable para manejar el estado de carga
   bool isLoading = false;
@@ -64,7 +67,17 @@ class _LoginScreenState extends State<LoginScreen> {
                           controller: conUser, // Controlador del campo
                           decoration: const InputDecoration(
                             prefixIcon: Icon(Icons.person), // Icono al inicio del campo
-                            hintText: 'Usuario', // Texto de ayuda
+                            hintText: 'Nombre', // Texto de ayuda
+                          ),
+                        ),
+                        SizedBox(height: screenHeight * 0.02), // Espaciado responsivo
+                        // Campo de texto para la contraseña
+                        TextFormField(
+                          keyboardType: TextInputType.text,
+                          controller: conEmail, // Controlador del campo
+                          decoration: const InputDecoration(
+                            prefixIcon: Icon(Icons.email), // Icono al inicio del campo
+                            hintText: 'Email', // Texto de ayuda
                           ),
                         ),
                         SizedBox(height: screenHeight * 0.02), // Espaciado responsivo
@@ -90,52 +103,22 @@ class _LoginScreenState extends State<LoginScreen> {
                       backgroundColor: const Color.fromARGB(255, 24, 27, 61), // Color de fondo del botón
                       padding: EdgeInsets.symmetric(
                         vertical: screenHeight * 0.02, // Padding vertical responsivo
-                        horizontal: screenWidth * 0.3, // Padding horizontal responsivo
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30), // Bordes redondeados del botón
-                      ),
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        isLoading = true; // Activa el indicador de carga
-                      });
-                      // Simula una tarea en segundo plano (por ejemplo, autenticación)
-                      Future.delayed(const Duration(milliseconds: 4000)).then(
-                        (value) {
-                          setState(() {
-                            isLoading = false; // Desactiva el indicador de carga
-                          });
-                          // Navega a la pantalla de onboarding reemplazando la actual
-                          Navigator.pushReplacementNamed(context, "/onboarding");
-                        },
-                      );
-                    },
-                    child: const Text(
-                      'Validar usuario',
-                      style: TextStyle(
-                        color: Color.fromARGB(255, 217, 225, 224), // Color del texto
-                        fontWeight: FontWeight.bold, // Peso de la fuente
-                      ),
-                    ),
-                    
-                  ),
-                ),
-                 Positioned(
-                  bottom: screenHeight * 0.19, // Posicionamiento responsivo
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color.fromARGB(255, 24, 27, 61), // Color de fondo del botón
-                      padding: EdgeInsets.symmetric(
-                        vertical: screenHeight * 0.02, // Padding vertical responsivo
                         horizontal: screenWidth * 0.34, // Padding horizontal responsivo
                       ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30), // Bordes redondeados del botón
                       ),
                     ),
-                    onPressed: () {
-                        Navigator.pushReplacementNamed(context, "/registro");
+                    onPressed: () async {
+                        isLoading = true;
+                        auth.createUser(conEmail.text, conUser.text, conPwd.text).then((value){
+                          value ? isLoading = false : isLoading;
+                          setState(() {
+                            
+                           });
+                        },
+                        );
+                          //Navigator.pushReplacementNamed(context, "/login");
                     },
                     child: const Text(
                       'Registro',
@@ -144,9 +127,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         fontWeight: FontWeight.bold, // Peso de la fuente
                       ),
                     ),
-                    
                   ),
-                 ),
+                ),
                 // Indicador de carga (GIF) que se muestra mientras isLoading es true
                 if (isLoading)
                   Positioned(

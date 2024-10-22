@@ -1,9 +1,11 @@
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
+import 'package:pmsn2024/provider/test_provider.dart';
 import 'package:pmsn2024/screen/profile_screen.dart';
 import 'package:pmsn2024/settings/colors_settings.dart';
 import 'package:pmsn2024/settings/global_values.dart';
+import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -13,12 +15,14 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  //definimos la variable:
+  //definimos las variable:
   int index = 0;
   final _key = GlobalKey<ExpandableFabState>();
 
+
   @override
   Widget build(BuildContext context) {
+    final testProvider = Provider.of<TestProvider>(context);
     return Scaffold(
       appBar: AppBar(
         backgroundColor: ColorsSettings
@@ -42,7 +46,7 @@ class _HomeScreenState extends State<HomeScreen> {
         }
       }),
       //endDrawer: Drawer(),
-      drawer: myDrawer(), //colocamos un menu lateral
+      drawer: myDrawer(testProvider), //colocamos un menu lateral
       bottomNavigationBar: ConvexAppBar(
         items: const [
           TabItem(icon: Icons.home, title: 'Home'),
@@ -91,17 +95,17 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   //construimos un widget
-  Widget myDrawer() {
+  Widget myDrawer(TestProvider testProvider) {
     return Drawer(
-      //trabajaremos la propiedad childl, contenedor multiple
+      //trabajaremos la propiedad child, contenedor multiple
       child: ListView(
         children: [
-          const UserAccountsDrawerHeader(
+           UserAccountsDrawerHeader(
               currentAccountPicture: CircleAvatar(
                 backgroundImage: NetworkImage(
                     'https://i.pravatar.cc/300'), //agregamos un link que nos da imagenes random
               ),
-              accountName: Text('Lluvia Guadalupe Alvarez Vazquez'),
+              accountName: Text(testProvider.name),
               accountEmail: Text('20030294@itcelaya.edu.mx')),
           //agregamos un widget
           ListTile(
@@ -115,6 +119,13 @@ class _HomeScreenState extends State<HomeScreen> {
             onTap: () => Navigator.pushNamed(context, '/peliculas'),
             title: Text('Peliculas'),
             leading: Icon(Icons.movie),
+            trailing: Icon(Icons.chevron_right),
+          ),
+          ListTile(
+            onTap: () => Navigator.pushReplacementNamed(context, '/popularMovie'),
+            title: Text('Peliculas populares'),
+            subtitle: Text('API of movie'),
+            leading: Icon(Icons.movie_creation),
             trailing: Icon(Icons.chevron_right),
           ),
           ListTile(

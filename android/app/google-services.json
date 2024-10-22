@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "376770882595",
+    "project_id": "moviles-b48d3",
+    "storage_bucket": "moviles-b48d3.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:376770882595:android:efc7eba302fdaf54b69596",
+        "android_client_info": {
+          "package_name": "com.pmsn2024.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDG0IvKrOqjMxA2LfqELG4H1QDnBD5AH1g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -8,7 +8,7 @@ class PopularMovieDao {
   String overview;
   double popularity;
   String posterPath;
-  DateTime releaseDate;
+  String releaseDate;
   String title;
   double voteAverage;
   int voteCount;
