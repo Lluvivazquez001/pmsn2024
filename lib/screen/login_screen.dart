@@ -122,7 +122,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                  Positioned(
-                  bottom: screenHeight * 0.19, // Posicionamiento responsivo
+                  bottom: screenHeight * 0.16, // Posicionamiento responsivo
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color.fromARGB(255, 24, 27, 61), // Color de fondo del botón

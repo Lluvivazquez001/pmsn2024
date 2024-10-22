@@ -5,6 +5,7 @@ import 'package:pmsn2024/provider/test_provider.dart';
 import 'package:pmsn2024/screen/profile_screen.dart';
 import 'package:pmsn2024/settings/colors_settings.dart';
 import 'package:pmsn2024/settings/global_values.dart';
+import 'package:pmsn2024/settings/preferences_services.dart';
 import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -15,9 +16,27 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  int _themeIndex = 0; // Tema seleccionado por defecto
+  String _fontFamily = 'Roboto'; // Fuente seleccionada por defecto
+  final PreferencesService _preferencesService = PreferencesService();
   //definimos las variable:
   int index = 0;
   final _key = GlobalKey<ExpandableFabState>();
+
+  void _changeTheme(int index) {
+    setState(() {
+      _themeIndex = index; // Cambia el tema actual
+      _preferencesService.saveTheme(index); // Guarda el tema seleccionado en SharedPreferences
+    });
+  }
+
+  // Cambia la fuente y guarda la preferencia
+  void _changeFont(String fontFamily) {
+    setState(() {
+      _fontFamily = fontFamily; // Cambia la fuente actual
+      _preferencesService.saveFont(fontFamily); // Guarda la fuente seleccionada en SharedPreferences
+    });
+  }
 
 
   @override
@@ -38,11 +57,19 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       //devolver un widget = body
       body: Builder(builder: (context) {
-        switch (index) {
+         switch (index) {
+          case 0:
+            return const Center(
+              child: Text('Home Screen'),
+            );
           case 1:
-            return ProfileScreen();
+            return ProfileScreen(changeTheme: _changeTheme, changeFont: _changeFont);
+          case 2:
+            return const Center(
+              child: Text('Exit Screen'),
+            );
           default:
-            return ProfileScreen();
+            return ProfileScreen(changeTheme: _changeTheme, changeFont: _changeFont);
         }
       }),
       //endDrawer: Drawer(),
@@ -57,15 +84,9 @@ class _HomeScreenState extends State<HomeScreen> {
           ),*/
           TabItem(icon: Icons.exit_to_app, title: 'Exit'),
         ],
-       /* initialActiveIndex:
-            0, // El índice del primer ítem que estará activo al cargar la pantalla
-        onTap: (int index) {
-          // Verificar si el índice corresponde a "Personajes"
-          if (index == 2) {
-            // Índice 2 porque 'Personajes' está en la tercera posición (empezando desde 0)
-            Navigator.pushNamed(context, "/peliculas");
-          }
-        },*/
+      onTap: (int i) => setState(() {
+          index = i;
+        }),
       ),
       floatingActionButtonLocation: ExpandableFab.location,
       floatingActionButton: ExpandableFab(

@@ -80,7 +80,7 @@ class _MyAppState extends State<MyApp> {
         routes: {
           "/home": (context) => HomeScreen(), // Ruta para la pantalla principal
           "/onboarding": (context) => OnboardingScreen(changeTheme: _changeTheme, changeFont: _changeFont), // Ruta para la pantalla de Onboarding
-          "/profile": (context) => ProfileScreen(), // Ruta para la pantalla de perfil
+          "/profile": (context) => ProfileScreen(changeTheme: _changeTheme, changeFont: _changeFont), // Ruta para la pantalla de perfil
           "/login": (context) => LoginScreen(),
           "/popularMovie": (context) => PopularScreen(), // Ruta para la pantalla de inicio de sesión
           "/peliculas": (context) => PeliculasScreen(),
