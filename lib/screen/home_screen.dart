@@ -23,20 +23,6 @@ class _HomeScreenState extends State<HomeScreen> {
   int index = 0;
   final _key = GlobalKey<ExpandableFabState>();
 
-  void _changeTheme(int index) {
-    setState(() {
-      _themeIndex = index; // Cambia el tema actual
-      _preferencesService.saveTheme(index); // Guarda el tema seleccionado en SharedPreferences
-    });
-  }
-
-  // Cambia la fuente y guarda la preferencia
-  void _changeFont(String fontFamily) {
-    setState(() {
-      _fontFamily = fontFamily; // Cambia la fuente actual
-      _preferencesService.saveFont(fontFamily); // Guarda la fuente seleccionada en SharedPreferences
-    });
-  }
 
 
   @override
@@ -63,13 +49,13 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Text('Home Screen'),
             );
           case 1:
-            return ProfileScreen(changeTheme: _changeTheme, changeFont: _changeFont);
+            return ProfileScreen();
           case 2:
             return const Center(
               child: Text('Exit Screen'),
             );
           default:
-            return ProfileScreen(changeTheme: _changeTheme, changeFont: _changeFont);
+            return ProfileScreen();
         }
       }),
       //endDrawer: Drawer(),

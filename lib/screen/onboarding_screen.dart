@@ -9,45 +9,44 @@ import 'package:pmsn2024/settings/theme_preferences.dart';
 import 'package:pmsn2024/settings/theme_settings.dart';
 import 'package:provider/provider.dart';
 import 'home_screen.dart'; // Pantalla principal después del onboarding
+import 'package:google_fonts/google_fonts.dart';
 
-class OnboardingScreen extends StatelessWidget {
- 
+class OnboardingScreen extends StatefulWidget {
+  @override
+  _OnboardingScreenState createState() => _OnboardingScreenState();
+}
 
+class _OnboardingScreenState extends State<OnboardingScreen> {
   // Lista de opciones de fuentes disponibles
-  List<String> fonts = ['Roboto', 'Lato', 'Montserrat', 'Pacifico'];
- 
+  List<String> fonts = ['Roboto', 'Lato', 'Montserrat'];
   String selectedFont = 'Roboto';
 
   @override
   Widget build(BuildContext context) {
     return IntroductionScreen(
-      // Lista de páginas del onboarding
       pages: [
         PageViewModel(
-          title: "¡Bienvenido a la App!", // Título de la primera página
+          title: "¡Bienvenido a la App!",
           body:
-              "En la siguiente aplicacion encontraras una serie de funciones de peliculas, en donde lograras ver la extensa variedad con la que contamos.",
+              "En la siguiente aplicación encontrarás una serie de funciones de películas, en donde lograrás ver la extensa variedad con la que contamos.",
           image: Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                SizedBox(height: 20), // Espacio arriba de la animación
+                SizedBox(height: 20),
                 SizedBox(
                   height: 270,
-                  child: Lottie.asset('assets/nivel5.json'), // Animación Lottie
+                  child: Lottie.asset('assets/nivel5.json'),
                 ),
               ],
             ),
           ),
           decoration: PageDecoration(
-            // Decoración de la página
             titleTextStyle:
                 TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             bodyTextStyle: TextStyle(fontSize: 16),
           ),
         ),
-
-        // Página para configurar tema y fuente
         PageViewModel(
           title: "Configuración de la app",
           bodyWidget: Center(
@@ -55,38 +54,42 @@ class OnboardingScreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  "Selecciona el tema", // Título de la sección de temas
+                  "Selecciona el tema",
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
                 SizedBox(height: 20),
-
-                // Botones para seleccionar temas (claro, oscuro, personalizado)
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     FloatingActionButton(
-                      onPressed: () {
-                      GlobalValues.themeMode.value = 0;
-                      ThemeSettings.lightTheme(); // Aplica el tema claro
-                    }, // Tema claro
+                      onPressed: () async {
+                        GlobalValues.themeMode.value = 0;
+                        await ThemePreference()
+                            .setTheme(0); // Guardar el tema claro
+                        ThemeSettings.lightTheme();
+                      },
                       backgroundColor: Colors.blue,
                       child: const Icon(Icons.light_mode, color: Colors.white),
                     ),
                     SizedBox(width: 20),
                     FloatingActionButton(
-                      onPressed: () {
-                      GlobalValues.themeMode.value = 1;
-                      ThemeSettings.darkTheme(); // Aplica el tema oscuro
-                    }, // Tema oscuro
+                      onPressed: () async {
+                        GlobalValues.themeMode.value = 1;
+                        await ThemePreference()
+                            .setTheme(1); // Guardar el tema claro
+                        ThemeSettings.darkTheme();
+                      },
                       backgroundColor: Colors.black87,
                       child: const Icon(Icons.dark_mode, color: Colors.white),
                     ),
                     SizedBox(width: 20),
                     FloatingActionButton(
-                     onPressed: () {
-                      GlobalValues.themeMode.value = 2;
-                      ThemeSettings.customTheme(); // Aplica el tema oscuro
-                    },
+                      onPressed: () async {
+                        GlobalValues.themeMode.value = 2;
+                        await ThemePreference()
+                            .setTheme(2); // Guardar el tema claro
+                        ThemeSettings.customTheme();
+                      },
                       backgroundColor: Colors.orange,
                       child: const Icon(Icons.local_fire_department,
                           color: Colors.white),
@@ -94,16 +97,41 @@ class OnboardingScreen extends StatelessWidget {
                   ],
                 ),
                 SizedBox(height: 30),
-
-                // Sección para seleccionar la fuente
                 Text(
-                  "Selecciona la fuente", // Título de la sección de fuentes
+                  "Selecciona la fuente",
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
                 SizedBox(height: 10),
 
                 // Dropdown para seleccionar una fuente
-             
+                DropdownButton<String>(
+                  value: selectedFont, // Fuente seleccionada por defecto
+                  icon: const Icon(Icons.arrow_downward),
+                  iconSize: 24,
+                  elevation: 16,
+                  style: TextStyle(color: Colors.grey),
+                  underline: Container(
+                    height: 2,
+                    color: Colors.blue,
+                  ),
+                  onChanged: (String? newValue) async {
+                    setState(() {
+                      selectedFont = newValue!;
+                      // Cambia la fuente globalmente
+                      GlobalValues.selectedFont.value = selectedFont;
+                    });
+
+                    // Guardar la fuente seleccionada en SharedPreferences
+                    await ThemePreference().setSelectedFont(selectedFont);
+                  },
+
+                  items: fonts.map<DropdownMenuItem<String>>((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value), // Texto de la fuente en el dropdown
+                    );
+                  }).toList(),
+                ),
               ],
             ),
           ),
@@ -113,8 +141,7 @@ class OnboardingScreen extends StatelessWidget {
               children: [
                 SizedBox(height: 40),
                 SizedBox(
-                  child: Lottie.asset(
-                      'assets/nivel4.json'), // Otra animación Lottie
+                  child: Lottie.asset('assets/nivel4.json'),
                 ),
               ],
             ),
@@ -125,13 +152,11 @@ class OnboardingScreen extends StatelessWidget {
             bodyTextStyle: TextStyle(fontSize: 16),
           ),
         ),
-
-        // Última página del onboarding
         PageViewModel(
           title: "¡Comienza a Usar!",
           body: "Estás a un paso de comenzar a disfrutar de la aplicación.",
           image: Center(
-            child: Lottie.asset('assets/tema1.json'), // Animación final
+            child: Lottie.asset('assets/tema1.json'),
           ),
           decoration: PageDecoration(
             titleTextStyle:
@@ -140,34 +165,28 @@ class OnboardingScreen extends StatelessWidget {
           ),
         ),
       ],
-      // Acción cuando el usuario completa el onboarding
       onDone: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(
-              builder: (context) =>
-                  HomeScreen()), // Navega a la pantalla principal
+          MaterialPageRoute(builder: (context) => HomeScreen()),
         );
       },
-      // Acción si el usuario se salta el onboarding
       onSkip: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(
-              builder: (context) =>
-                  HomeScreen()), // Navega a la pantalla principal
+          MaterialPageRoute(builder: (context) => HomeScreen()),
         );
       },
-      showSkipButton: true, // Muestra el botón de "Saltar"
+      showSkipButton: true,
       skip: const Text("Saltar"),
       next: const Icon(Icons.arrow_forward),
       done:
           const Text("Comenzar", style: TextStyle(fontWeight: FontWeight.bold)),
       dotsDecorator: const DotsDecorator(
-        activeColor: Colors.blue, // Color del indicador activo
-        color: Colors.grey, // Color de los indicadores inactivos
-        size: Size(10, 10), // Tamaño del punto
-        activeSize: Size(12, 12), // Tamaño del punto activo
+        activeColor: Colors.blue,
+        color: Colors.grey,
+        size: Size(10, 10),
+        activeSize: Size(12, 12),
       ),
     );
   }

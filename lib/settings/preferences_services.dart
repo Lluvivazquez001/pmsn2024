@@ -2,7 +2,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 // Clase que se encarga de manejar las preferencias de la aplicación
 class PreferencesService {
-  // Claves constantes para guardar las preferencias de tema y fuente
+ // Claves constantes para guardar las preferencias de tema y fuente
   static const String _themeKey = 'themeIndex'; // variables para tema y fuente
   static const String _fontKey = 'fontFamily';  
 

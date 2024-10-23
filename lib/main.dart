@@ -23,10 +23,12 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   int savedTheme = await ThemePreference().getTheme();
+  String savedFont = await ThemePreference().getSelectedFont();
+  GlobalValues.selectedFont.value = savedFont;
+
   GlobalValues.themeMode.value = savedTheme;
   runApp(const MyApp());
 }
-
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -34,37 +36,37 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder(
-        valueListenable: GlobalValues.themeMode,
-        builder: (context, themeMode, _) {
-          return ChangeNotifierProvider(
-            create: (context) => TestProvider(),
-            child: MaterialApp(
-              title: 'Material App',
-              debugShowCheckedModeBanner: false,
-              home: LoginScreen(),
-              theme: getThemeByMode(themeMode),
-              // Pantalla inicial (se puede cambiar según el flujo)
-              routes: {
-                "/home": (context) =>
-                    HomeScreen(), // Ruta para la pantalla principal
-                "onboarding" : (context) => OnboardingScreen(),
-                
-                "/login": (context) => LoginScreen(),
-                "/popularMovie": (context) =>
-                    PopularScreen(), // Ruta para la pantalla de inicio de sesión
-                "/peliculas": (context) => PeliculasScreen(),
-                "/db": (context) => MoviesScreen(),
-                "/details": (context) =>
-                    DetailPopularScreen(), //mandamos llamar la pantalla de detail
-                "/registro": (context) => RegistroScreen(),
-                "/theme": (context) => ThemeSettingsScreen(),
-              },
-            ),
-          );
-        });
+      valueListenable: GlobalValues.themeMode,
+      builder: (context, themeMode, _) {
+        return ValueListenableBuilder(
+          valueListenable: GlobalValues.selectedFont,
+          builder: (context, selectedFont, _) {
+            return ChangeNotifierProvider(
+              create: (context) => TestProvider(),
+              child: MaterialApp(
+                title: 'Material App',
+                debugShowCheckedModeBanner: false,
+                home: LoginScreen(),
+                theme: combineThemeAndFont(themeMode, selectedFont),
+                routes: {
+                  "/home": (context) => HomeScreen(),
+                  "onboarding": (context) => OnboardingScreen(),
+                  "/login": (context) => LoginScreen(),
+                  "/popularMovie": (context) => PopularScreen(),
+                  "/peliculas": (context) => PeliculasScreen(),
+                  "/db": (context) => MoviesScreen(),
+                  "/details": (context) => DetailPopularScreen(),
+                  "/registro": (context) => RegistroScreen(),
+                  "/theme": (context) => ThemeSettingsScreen(),
+                },
+              ),
+            );
+          },
+        );
+      },
+    );
   }
 
-  // Método para obtener el tema de la aplicación basado en la selección del usuario
   ThemeData getThemeByMode(int mode) {
     switch (mode) {
       case 1:
@@ -74,5 +76,15 @@ class MyApp extends StatelessWidget {
       default:
         return ThemeSettings.lightTheme();
     }
+  }
+
+  TextTheme getTextThemeByFont(String font) {
+    return GoogleFonts.getTextTheme(font);
+  }
+
+  ThemeData combineThemeAndFont(int mode, String font) {
+    ThemeData theme = getThemeByMode(mode);
+    TextTheme textTheme = getTextThemeByFont(font);
+    return theme.copyWith(textTheme: textTheme);
   }
 }

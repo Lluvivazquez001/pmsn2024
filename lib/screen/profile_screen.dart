@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:pmsn2024/settings/global_values.dart';
+import 'package:pmsn2024/settings/theme_preferences.dart';
 import 'package:pmsn2024/settings/theme_settings.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'home_screen.dart'; // Pantalla principal después del onboarding
@@ -9,11 +10,6 @@ import 'package:shared_preferences/shared_preferences.dart'; // Asegúrate de te
 import 'package:introduction_screen/introduction_screen.dart'; // Paquete para la pantalla de introducción
 
 class ProfileScreen extends StatefulWidget {
-  final Function(int) changeTheme; // Función para cambiar el tema
-  final Function(String) changeFont; // Función para cambiar la fuente
-  //const ProfileScreen({Key? key}) : super(key: key);
-  ProfileScreen({required this.changeTheme, required this.changeFont});
-
   @override
   _ProfileScreenState createState() => _ProfileScreenState();
 }
@@ -39,11 +35,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   final List<String> _tasks = [];
   // Lista de opciones de fuentes disponibles
-  List<String> fonts = ['Roboto', 'Lato', 'Montserrat', 'Pacifico'];
-  String selectedFont = 'Roboto'; // Fuente seleccionada por defecto
+  List<String> fonts = ['Roboto', 'Lato', 'Montserrat'];
+  String selectedFont = GlobalValues.selectedFont.value;
   int themeIndex = 0; // Índice del tema por defecto
   // Lista de opciones de fuentes disponibles
-
 
   @override
   void initState() {
@@ -124,11 +119,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       themeIndex = prefs.getInt('themeIndex') ?? 0; // Cargar el índice del tema
-      selectedFont = prefs.getString('selectedFont') ?? 'Roboto'; // Cargar la fuente
+      selectedFont =
+          prefs.getString('selectedFont') ?? 'Roboto'; // Cargar la fuente
     });
   }
 
- Future<void> _savePreferences() async {
+  Future<void> _savePreferences() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setInt('themeIndex', themeIndex);
     await prefs.setString('selectedFont', selectedFont);
@@ -148,27 +144,33 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                   FloatingActionButton(
-                      onPressed: () {
-                      GlobalValues.themeMode.value = 0;
-                      ThemeSettings.lightTheme(); // Aplica el tema claro
-                    },
+                    FloatingActionButton(
+                      onPressed: () async {
+                        GlobalValues.themeMode.value = 0;
+                        await ThemePreference()
+                            .setTheme(0); // Guardar el tema claro
+                        ThemeSettings.lightTheme();
+                      },
                       backgroundColor: Colors.blue,
                       child: const Icon(Icons.light_mode, color: Colors.white),
                     ),
                     FloatingActionButton(
-                       onPressed: () {
-                      GlobalValues.themeMode.value = 1;
-                      ThemeSettings.darkTheme(); // Aplica el tema claro
-                    }, // Tema oscuro
+                      onPressed: () async {
+                        GlobalValues.themeMode.value = 1;
+                        await ThemePreference()
+                            .setTheme(1); // Guardar el tema claro
+                        ThemeSettings.darkTheme();
+                      },
                       backgroundColor: Colors.black87,
                       child: const Icon(Icons.dark_mode, color: Colors.white),
                     ),
                     FloatingActionButton(
-                       onPressed: () {
-                      GlobalValues.themeMode.value = 2;
-                      ThemeSettings.customTheme(); // Aplica el tema claro
-                    }, // Tema personalizado
+                      onPressed: () async {
+                        GlobalValues.themeMode.value = 2;
+                        await ThemePreference()
+                            .setTheme(2); // Guardar el tema claro
+                        ThemeSettings.customTheme();
+                      },
                       backgroundColor: Colors.orange,
                       child: const Icon(Icons.local_fire_department,
                           color: Colors.white),
@@ -180,11 +182,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 DropdownButton<String>(
                   value: selectedFont,
                   icon: const Icon(Icons.arrow_downward),
-                 onChanged: (String? newValue) {
+                  onChanged: (String? newValue) {
                     setState(() {
                       selectedFont = newValue!;
-                      widget.changeFont(selectedFont); // Cambia la fuente global
-                      _savePreferences(); // Guardar preferencia
+                      // Cambia la fuente globalmente
+                      GlobalValues.selectedFont.value = selectedFont;
                     });
                   },
                   items: fonts.map<DropdownMenuItem<String>>((String value) {
@@ -208,7 +210,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-@override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SingleChildScrollView(
@@ -223,7 +225,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ? FileImage(File(_imageFile!.path))
                     : null,
                 child: _imageFile == null
-                    ? const Icon(Icons.camera_alt, size: 50, color: Colors.white)
+                    ? const Icon(Icons.camera_alt,
+                        size: 50, color: Colors.white)
                     : null,
                 backgroundColor: Colors.deepPurple.shade200,
               ),
