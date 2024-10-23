@@ -150,6 +150,13 @@ class _HomeScreenState extends State<HomeScreen> {
             trailing: Icon(Icons.chevron_right),
           ),
           ListTile(
+            title: const Text('Configuración de Tema'),
+            leading: const Icon(Icons.color_lens),
+            onTap: () {
+              Navigator.pushNamed(context, '/theme');
+            },
+          ),
+          ListTile(
             onTap: () => Navigator.pushReplacementNamed(context, '/login'),
             title: Text('Cerrar Sesion'),
             leading: Icon(Icons.close),

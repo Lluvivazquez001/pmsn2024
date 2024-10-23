@@ -1,8 +1,12 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:pmsn2024/settings/global_values.dart';
+import 'package:pmsn2024/settings/theme_settings.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'home_screen.dart'; // Pantalla principal después del onboarding
 import 'package:shared_preferences/shared_preferences.dart'; // Asegúrate de tener el paquete para SharedPreferences
+import 'package:introduction_screen/introduction_screen.dart'; // Paquete para la pantalla de introducción
 
 class ProfileScreen extends StatefulWidget {
   final Function(int) changeTheme; // Función para cambiar el tema
@@ -26,18 +30,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final TextEditingController _taskController = TextEditingController();
 
   String _selectedStatus = 'Disponible';
-  final List<String> _statusOptions = ['Disponible', 'Ocupado', 'No Molestar', 'Ausente'];
+  final List<String> _statusOptions = [
+    'Disponible',
+    'Ocupado',
+    'No Molestar',
+    'Ausente'
+  ];
 
   final List<String> _tasks = [];
   // Lista de opciones de fuentes disponibles
   List<String> fonts = ['Roboto', 'Lato', 'Montserrat', 'Pacifico'];
   String selectedFont = 'Roboto'; // Fuente seleccionada por defecto
   int themeIndex = 0; // Índice del tema por defecto
+  // Lista de opciones de fuentes disponibles
+
 
   @override
   void initState() {
     super.initState();
-    //_loadPreferences();
+    _loadPreferences(); // Cargar preferencias al iniciar
   }
 
   /*Future<void> _loadPreferences() async {
@@ -109,6 +120,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
+  Future<void> _loadPreferences() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      themeIndex = prefs.getInt('themeIndex') ?? 0; // Cargar el índice del tema
+      selectedFont = prefs.getString('selectedFont') ?? 'Roboto'; // Cargar la fuente
+    });
+  }
+
+ Future<void> _savePreferences() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('themeIndex', themeIndex);
+    await prefs.setString('selectedFont', selectedFont);
+  }
+
 //metodo para el tema y letra
   void _showThemeAndFontDialog(BuildContext context) {
     showDialog(
@@ -123,20 +148,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    FloatingActionButton(
-                     onPressed: () => widget.changeTheme(0), // Tema claro
+                   FloatingActionButton(
+                      onPressed: () {
+                      GlobalValues.themeMode.value = 0;
+                      ThemeSettings.lightTheme(); // Aplica el tema claro
+                    },
                       backgroundColor: Colors.blue,
                       child: const Icon(Icons.light_mode, color: Colors.white),
                     ),
                     FloatingActionButton(
-                      onPressed: () => widget.changeTheme(1), // Tema oscuro
+                       onPressed: () {
+                      GlobalValues.themeMode.value = 1;
+                      ThemeSettings.darkTheme(); // Aplica el tema claro
+                    }, // Tema oscuro
                       backgroundColor: Colors.black87,
                       child: const Icon(Icons.dark_mode, color: Colors.white),
                     ),
                     FloatingActionButton(
-                      onPressed: () => widget.changeTheme(2), // Tema personalizado
+                       onPressed: () {
+                      GlobalValues.themeMode.value = 2;
+                      ThemeSettings.customTheme(); // Aplica el tema claro
+                    }, // Tema personalizado
                       backgroundColor: Colors.orange,
-                      child: const Icon(Icons.local_fire_department, color: Colors.white),
+                      child: const Icon(Icons.local_fire_department,
+                          color: Colors.white),
                     ),
                   ],
                 ),
@@ -145,13 +180,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 DropdownButton<String>(
                   value: selectedFont,
                   icon: const Icon(Icons.arrow_downward),
-                  onChanged: (String? newValue) {
+                 onChanged: (String? newValue) {
                     setState(() {
                       selectedFont = newValue!;
-                     // _savePreferences(); // Guardar preferencia
+                      widget.changeFont(selectedFont); // Cambia la fuente global
+                      _savePreferences(); // Guardar preferencia
                     });
                   },
-                  items: ['Roboto', 'Lato', 'Montserrat', 'Pacifico'].map<DropdownMenuItem<String>>((String value) {
+                  items: fonts.map<DropdownMenuItem<String>>((String value) {
                     return DropdownMenuItem<String>(
                       value: value,
                       child: Text(value),
@@ -172,7 +208,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  @override
+@override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SingleChildScrollView(
@@ -224,63 +260,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const SizedBox(height: 20),
             _buildTaskSection(),
             const SizedBox(height: 20),
-            /*ElevatedButton(
-              onPressed: () => _showThemeAndFontDialog(context), // Abre el modal
+            // Botón para abrir configuración de tema y fuente
+            ElevatedButton(
+              onPressed: () => _showThemeAndFontDialog(context),
               child: Text("Configuración de Tema y Fuente"),
-            ),*/
-            // Botones para seleccionar temas (claro, oscuro, personalizado)
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    FloatingActionButton(
-                      onPressed: () => widget.changeTheme(0), // Tema claro
-                      backgroundColor: Colors.blue,
-                      child: const Icon(Icons.light_mode, color: Colors.white),
-                    ),
-                    SizedBox(width: 20),
-                    FloatingActionButton(
-                      onPressed: () => widget.changeTheme(1), // Tema oscuro
-                      backgroundColor: Colors.black87,
-                      child: const Icon(Icons.dark_mode, color: Colors.white),
-                    ),
-                    SizedBox(width: 20),
-                    FloatingActionButton(
-                      onPressed: () => widget.changeTheme(2), // Tema personalizado
-                      backgroundColor: Colors.orange,
-                      child: const Icon(Icons.local_fire_department, color: Colors.white),
-                    ),
-                  ],
-                ),
-                Text(
-                  "Selecciona la fuente", // Título de la sección de fuentes
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: 10),
-
-                // Dropdown para seleccionar una fuente
-                DropdownButton<String>(
-                  value: selectedFont, // Fuente seleccionada por defecto
-                  icon: const Icon(Icons.arrow_downward),
-                  iconSize: 24,
-                  elevation: 16,
-                  style: TextStyle(color: Colors.grey),
-                  underline: Container(
-                    height: 2,
-                    color: Colors.blue,
-                  ),
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      selectedFont = newValue!; // Actualiza la fuente seleccionada
-                      widget.changeFont(selectedFont); // Cambia la fuente global
-                    });
-                  },
-                  items: fonts.map<DropdownMenuItem<String>>((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value), // Texto de la fuente en el dropdown
-                    );
-                  }).toList(),
-                ),
+            ),
           ],
         ),
       ),
@@ -424,18 +408,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
       context: context,
       builder: (BuildContext context) {
         return Container(
-          padding: const EdgeInsets.all(20),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                "Selecciona una fuente de imagen",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 20),
               ListTile(
                 leading: const Icon(Icons.camera),
-                title: const Text("Cámara"),
+                title: const Text('Tomar foto'),
                 onTap: () {
                   _pickImage(ImageSource.camera);
                   Navigator.pop(context);
@@ -443,7 +421,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               ListTile(
                 leading: const Icon(Icons.photo),
-                title: const Text("Galería"),
+                title: const Text('Seleccionar de la galería'),
                 onTap: () {
                   _pickImage(ImageSource.gallery);
                   Navigator.pop(context);

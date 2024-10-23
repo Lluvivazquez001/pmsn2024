@@ -1,25 +1,21 @@
 import 'package:flutter/material.dart';
- // Paquete para utilizar Google Fonts
+// Paquete para utilizar Google Fonts
 import 'package:introduction_screen/introduction_screen.dart'; // Paquete para la pantalla de introducción
-import 'package:lottie/lottie.dart'; // Paquete para animaciones Lottie 
+import 'package:lottie/lottie.dart'; // Paquete para animaciones Lottie
+import 'package:pmsn2024/settings/global_values.dart';
+import 'package:pmsn2024/settings/preferences_services.dart';
+import 'package:pmsn2024/settings/theme_notifier.dart';
+import 'package:pmsn2024/settings/theme_preferences.dart';
+import 'package:pmsn2024/settings/theme_settings.dart';
+import 'package:provider/provider.dart';
 import 'home_screen.dart'; // Pantalla principal después del onboarding
 
-class OnboardingScreen extends StatefulWidget {
-  final Function(int) changeTheme; // Función para cambiar el tema
-  final Function(String) changeFont; // Función para cambiar la fuente
+class OnboardingScreen extends StatelessWidget {
+ 
 
-  // Constructor de la clase con los callbacks para cambiar el tema y la fuente
-  OnboardingScreen({required this.changeTheme, required this.changeFont});
-
-  @override
-  _OnboardingScreenState createState() => _OnboardingScreenState();
-}
-
-class _OnboardingScreenState extends State<OnboardingScreen> {
   // Lista de opciones de fuentes disponibles
   List<String> fonts = ['Roboto', 'Lato', 'Montserrat', 'Pacifico'];
-
-  // Fuente seleccionada por defecto
+ 
   String selectedFont = 'Roboto';
 
   @override
@@ -45,7 +41,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           ),
           decoration: PageDecoration(
             // Decoración de la página
-            titleTextStyle: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            titleTextStyle:
+                TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             bodyTextStyle: TextStyle(fontSize: 16),
           ),
         ),
@@ -68,21 +65,31 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     FloatingActionButton(
-                      onPressed: () => widget.changeTheme(0), // Tema claro
+                      onPressed: () {
+                      GlobalValues.themeMode.value = 0;
+                      ThemeSettings.lightTheme(); // Aplica el tema claro
+                    }, // Tema claro
                       backgroundColor: Colors.blue,
                       child: const Icon(Icons.light_mode, color: Colors.white),
                     ),
                     SizedBox(width: 20),
                     FloatingActionButton(
-                      onPressed: () => widget.changeTheme(1), // Tema oscuro
+                      onPressed: () {
+                      GlobalValues.themeMode.value = 1;
+                      ThemeSettings.darkTheme(); // Aplica el tema oscuro
+                    }, // Tema oscuro
                       backgroundColor: Colors.black87,
                       child: const Icon(Icons.dark_mode, color: Colors.white),
                     ),
                     SizedBox(width: 20),
                     FloatingActionButton(
-                      onPressed: () => widget.changeTheme(2), // Tema personalizado
+                     onPressed: () {
+                      GlobalValues.themeMode.value = 2;
+                      ThemeSettings.customTheme(); // Aplica el tema oscuro
+                    },
                       backgroundColor: Colors.orange,
-                      child: const Icon(Icons.local_fire_department, color: Colors.white),
+                      child: const Icon(Icons.local_fire_department,
+                          color: Colors.white),
                     ),
                   ],
                 ),
@@ -96,29 +103,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 SizedBox(height: 10),
 
                 // Dropdown para seleccionar una fuente
-                DropdownButton<String>(
-                  value: selectedFont, // Fuente seleccionada por defecto
-                  icon: const Icon(Icons.arrow_downward),
-                  iconSize: 24,
-                  elevation: 16,
-                  style: TextStyle(color: Colors.grey),
-                  underline: Container(
-                    height: 2,
-                    color: Colors.blue,
-                  ),
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      selectedFont = newValue!; // Actualiza la fuente seleccionada
-                      widget.changeFont(selectedFont); // Cambia la fuente global
-                    });
-                  },
-                  items: fonts.map<DropdownMenuItem<String>>((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value), // Texto de la fuente en el dropdown
-                    );
-                  }).toList(),
-                ),
+             
               ],
             ),
           ),
@@ -128,13 +113,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               children: [
                 SizedBox(height: 40),
                 SizedBox(
-                  child: Lottie.asset('assets/nivel4.json'), // Otra animación Lottie
+                  child: Lottie.asset(
+                      'assets/nivel4.json'), // Otra animación Lottie
                 ),
               ],
             ),
           ),
           decoration: PageDecoration(
-            titleTextStyle: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            titleTextStyle:
+                TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             bodyTextStyle: TextStyle(fontSize: 16),
           ),
         ),
@@ -147,7 +134,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             child: Lottie.asset('assets/tema1.json'), // Animación final
           ),
           decoration: PageDecoration(
-            titleTextStyle: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            titleTextStyle:
+                TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             bodyTextStyle: TextStyle(fontSize: 16),
           ),
         ),
@@ -156,20 +144,25 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       onDone: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => HomeScreen()), // Navega a la pantalla principal
+          MaterialPageRoute(
+              builder: (context) =>
+                  HomeScreen()), // Navega a la pantalla principal
         );
       },
       // Acción si el usuario se salta el onboarding
       onSkip: () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => HomeScreen()), // Navega a la pantalla principal
+          MaterialPageRoute(
+              builder: (context) =>
+                  HomeScreen()), // Navega a la pantalla principal
         );
       },
       showSkipButton: true, // Muestra el botón de "Saltar"
       skip: const Text("Saltar"),
       next: const Icon(Icons.arrow_forward),
-      done: const Text("Comenzar", style: TextStyle(fontWeight: FontWeight.bold)),
+      done:
+          const Text("Comenzar", style: TextStyle(fontWeight: FontWeight.bold)),
       dotsDecorator: const DotsDecorator(
         activeColor: Colors.blue, // Color del indicador activo
         color: Colors.grey, // Color de los indicadores inactivos

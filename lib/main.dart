@@ -12,108 +12,67 @@ import 'package:pmsn2024/screen/peliculas_screen.dart';
 import 'package:pmsn2024/screen/popular_screen.dart';
 import 'package:pmsn2024/screen/profile_screen.dart'; // Importa la pantalla de profile
 import 'package:pmsn2024/screen/registro_screen.dart';
+import 'package:pmsn2024/screen/theme_screen.dart';
+import 'package:pmsn2024/settings/global_values.dart';
 import 'package:pmsn2024/settings/preferences_services.dart'; // Importa el servicio de preferencias para guardar configuraciones
+import 'package:pmsn2024/settings/theme_preferences.dart';
 import 'package:pmsn2024/settings/theme_settings.dart';
 import 'package:provider/provider.dart'; // Importa la configuración de temas
 
-void main()  async {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);//para inicialiar firebase y la linea 19
-
-  runApp(const MyApp()); // Llama a la aplicación principal
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  int savedTheme = await ThemePreference().getTheme();
+  GlobalValues.themeMode.value = savedTheme;
+  runApp(const MyApp());
 }
 
-class MyApp extends StatefulWidget {
+
+class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
-  _MyAppState createState() => _MyAppState(); // Crea el estado del widget MyApp
-}
-
-class _MyAppState extends State<MyApp> {
-  // Variables para manejar el tema y la fuente seleccionados
-  int _themeIndex = 0; // Tema seleccionado por defecto
-  String _fontFamily = 'Roboto'; // Fuente seleccionada por defecto
-  final PreferencesService _preferencesService = PreferencesService(); // Servicio para gestionar las preferencias (SharedPreferences)
-
-  @override
-  void initState() {
-    super.initState();
-    _loadPreferences(); // Carga las preferencias guardadas al iniciar la aplicación
-  }
-
-  // Método para cargar las preferencias del usuario desde SharedPreferences
-  Future<void> _loadPreferences() async {
-    final themeIndex = await _preferencesService.getTheme(); // Obtiene el tema guardado
-    final fontFamily = await _preferencesService.getFont(); // Obtiene la fuente guardada
-    setState(() {
-      _themeIndex = themeIndex; // Actualiza el tema con el valor guardado
-      _fontFamily = fontFamily; // Actualiza la fuente con el valor guardado
-    });
-  }
-
-  // Cambia el tema y guarda la preferencia
-  void _changeTheme(int index) {
-    setState(() {
-      _themeIndex = index; // Cambia el tema actual
-      _preferencesService.saveTheme(index); // Guarda el tema seleccionado en SharedPreferences
-    });
-  }
-
-  // Cambia la fuente y guarda la preferencia
-  void _changeFont(String fontFamily) {
-    setState(() {
-      _fontFamily = fontFamily; // Cambia la fuente actual
-      _preferencesService.saveFont(fontFamily); // Guarda la fuente seleccionada en SharedPreferences
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(//envolvemos el materialApp en un ChangeNotifierProvider
-    create: (context)=>TestProvider(),
-      child: MaterialApp(
-        title: 'Material App', // Título de la aplicación
-        debugShowCheckedModeBanner: false, // Oculta la marca de debug en la esquina
-        theme: _getThemeData(), // Aplica el tema basado en el índice seleccionado
-        home: LoginScreen(), // Pantalla inicial (se puede cambiar según el flujo)
-        routes: {
-          "/home": (context) => HomeScreen(), // Ruta para la pantalla principal
-          "/onboarding": (context) => OnboardingScreen(changeTheme: _changeTheme, changeFont: _changeFont), // Ruta para la pantalla de Onboarding
-          "/profile": (context) => ProfileScreen(changeTheme: _changeTheme, changeFont: _changeFont), // Ruta para la pantalla de perfil
-          "/login": (context) => LoginScreen(),
-          "/popularMovie": (context) => PopularScreen(), // Ruta para la pantalla de inicio de sesión
-          "/peliculas": (context) => PeliculasScreen(),
-          "/db": (context) => MoviesScreen(),
-          "/details": (context) => DetailPopularScreen(), //mandamos llamar la pantalla de detail
-          "/registro": (context) => RegistroScreen(), 
-
-        },
-      ),
-    );
+    return ValueListenableBuilder(
+        valueListenable: GlobalValues.themeMode,
+        builder: (context, themeMode, _) {
+          return ChangeNotifierProvider(
+            create: (context) => TestProvider(),
+            child: MaterialApp(
+              title: 'Material App',
+              debugShowCheckedModeBanner: false,
+              home: LoginScreen(),
+              theme: getThemeByMode(themeMode),
+              // Pantalla inicial (se puede cambiar según el flujo)
+              routes: {
+                "/home": (context) =>
+                    HomeScreen(), // Ruta para la pantalla principal
+                "onboarding" : (context) => OnboardingScreen(),
+                
+                "/login": (context) => LoginScreen(),
+                "/popularMovie": (context) =>
+                    PopularScreen(), // Ruta para la pantalla de inicio de sesión
+                "/peliculas": (context) => PeliculasScreen(),
+                "/db": (context) => MoviesScreen(),
+                "/details": (context) =>
+                    DetailPopularScreen(), //mandamos llamar la pantalla de detail
+                "/registro": (context) => RegistroScreen(),
+                "/theme": (context) => ThemeSettingsScreen(),
+              },
+            ),
+          );
+        });
   }
 
   // Método para obtener el tema de la aplicación basado en la selección del usuario
-  ThemeData _getThemeData() {
-    ThemeData baseTheme;
-
-    switch (_themeIndex) {
-      case 0:
-        baseTheme = ThemeSettings.lightTheme(context); // Tema claro
-        break;
+  ThemeData getThemeByMode(int mode) {
+    switch (mode) {
       case 1:
-        baseTheme = ThemeSettings.darkTheme(); // Tema oscuro
-        break;
+        return ThemeSettings.darkTheme();
       case 2:
-        baseTheme = ThemeSettings.warmTheme(); // Tema cálido
-        break;
+        return ThemeSettings.customTheme();
       default:
-        baseTheme = ThemeSettings.lightTheme(context); // Tema claro por defecto
+        return ThemeSettings.lightTheme();
     }
-
-    // Aplica la fuente seleccionada a los estilos de texto del tema
-    return baseTheme.copyWith(
-      textTheme: GoogleFonts.getTextTheme(_fontFamily, baseTheme.textTheme),
-    );
   }
 }

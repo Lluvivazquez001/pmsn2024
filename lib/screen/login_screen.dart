@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pmsn2024/screen/onboarding_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -107,7 +108,13 @@ class _LoginScreenState extends State<LoginScreen> {
                             isLoading = false; // Desactiva el indicador de carga
                           });
                           // Navega a la pantalla de onboarding reemplazando la actual
-                          Navigator.pushReplacementNamed(context, "/onboarding");
+                               Navigator.pushReplacement(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              OnboardingScreen(),
+                                        ),
+                                      );
                         },
                       );
                     },
